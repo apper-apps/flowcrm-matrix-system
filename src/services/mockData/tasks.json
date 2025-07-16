@@ -1,0 +1,62 @@
+[
+  {
+    "Id": 1,
+    "title": "Follow up on proposal meeting",
+    "description": "Send follow-up email with revised proposal and address concerns raised during the meeting",
+    "dueDate": "2024-01-25T17:00:00Z",
+    "priority": "high",
+    "completed": false,
+    "contactId": 1,
+    "assignedTo": "John Doe"
+  },
+  {
+    "Id": 2,
+    "title": "Prepare demo environment",
+    "description": "Set up demo environment for cloud infrastructure showcase",
+    "dueDate": "2024-01-26T12:00:00Z",
+    "priority": "medium",
+    "completed": true,
+    "contactId": 2,
+    "assignedTo": "Jane Smith"
+  },
+  {
+    "Id": 3,
+    "title": "Contract review call",
+    "description": "Schedule call with legal team to review contract terms",
+    "dueDate": "2024-01-24T15:00:00Z",
+    "priority": "high",
+    "completed": false,
+    "contactId": 3,
+    "assignedTo": "Mike Johnson"
+  },
+  {
+    "Id": 4,
+    "title": "Send marketing materials",
+    "description": "Compile and send marketing automation case studies",
+    "dueDate": "2024-01-27T10:00:00Z",
+    "priority": "medium",
+    "completed": false,
+    "contactId": 4,
+    "assignedTo": "John Doe"
+  },
+  {
+    "Id": 5,
+    "title": "Implementation planning",
+    "description": "Create detailed implementation timeline for the analytics suite",
+    "dueDate": "2024-01-28T16:00:00Z",
+    "priority": "low",
+    "completed": false,
+    "contactId": 5,
+    "assignedTo": "Jane Smith"
+  },
+  {
+    "Id": 6,
+    "title": "Technical requirements gathering",
+    "description": "Gather detailed technical requirements for the financial dashboard",
+    "dueDate": "2024-01-29T14:00:00Z",
+    "priority": "medium",
+    "completed": false,
+    "contactId": 6,
+    "assignedTo": "Mike Johnson"
+  }
+]

@@ -1,0 +1,90 @@
+[
+  {
+    "Id": 1,
+    "type": "call",
+    "description": "Initial discovery call to understand requirements and pain points",
+    "contactId": 1,
+    "timestamp": "2024-01-20T14:20:00Z",
+    "metadata": {
+      "duration": "45 minutes",
+      "outcome": "Qualified lead"
+    }
+  },
+  {
+    "Id": 2,
+    "type": "email",
+    "description": "Sent proposal for cloud infrastructure migration project",
+    "contactId": 2,
+    "timestamp": "2024-01-19T11:45:00Z",
+    "metadata": {
+      "subject": "Cloud Migration Proposal - Innovate Inc",
+      "status": "opened"
+    }
+  },
+  {
+    "Id": 3,
+    "type": "meeting",
+    "description": "Contract negotiation meeting with legal teams",
+    "contactId": 3,
+    "timestamp": "2024-01-18T13:30:00Z",
+    "metadata": {
+      "location": "Conference Room A",
+      "attendees": 4
+    }
+  },
+  {
+    "Id": 4,
+    "type": "email",
+    "description": "Sent marketing automation platform demo video",
+    "contactId": 4,
+    "timestamp": "2024-01-17T09:15:00Z",
+    "metadata": {
+      "subject": "Marketing Automation Demo - GlobalCorp",
+      "status": "clicked"
+    }
+  },
+  {
+    "Id": 5,
+    "type": "call",
+    "description": "Post-implementation check-in call for analytics suite",
+    "contactId": 5,
+    "timestamp": "2024-01-16T16:00:00Z",
+    "metadata": {
+      "duration": "30 minutes",
+      "outcome": "Satisfied customer"
+    }
+  },
+  {
+    "Id": 6,
+    "type": "note",
+    "description": "Added notes from client meeting about financial dashboard requirements",
+    "contactId": 6,
+    "timestamp": "2024-01-15T10:20:00Z",
+    "metadata": {
+      "category": "requirements",
+      "priority": "high"
+    }
+  },
+  {
+    "Id": 7,
+    "type": "email",
+    "description": "Follow-up email after proposal submission",
+    "contactId": 1,
+    "timestamp": "2024-01-21T09:30:00Z",
+    "metadata": {
+      "subject": "Following up on our proposal",
+      "status": "replied"
+    }
+  },
+  {
+    "Id": 8,
+    "type": "task",
+    "description": "Completed technical requirements document review",
+    "contactId": 2,
+    "timestamp": "2024-01-20T15:45:00Z",
+    "metadata": {
+      "task": "Requirements Review",
+      "status": "completed"
+    }
+  }
+]
