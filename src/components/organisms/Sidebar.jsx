@@ -11,8 +11,8 @@ const Sidebar = ({ className }) => {
     { name: "Activities", href: "/activities", icon: "Activity" },
   ];
 
-  return (
-    <div className={cn("bg-white border-r border-gray-200 w-64 h-screen", className)}>
+return (
+    <div className={cn("bg-white border-r border-gray-200 w-64 h-screen flex-shrink-0", className)}>
       <div className="p-6">
         <div className="flex items-center gap-3 mb-8">
           <div className="w-8 h-8 bg-gradient-to-r from-primary-500 to-secondary-500 rounded-lg flex items-center justify-center">
@@ -28,16 +28,16 @@ const Sidebar = ({ className }) => {
             <NavLink
               key={item.name}
               to={item.href}
-              className={({ isActive }) =>
+className={({ isActive }) =>
                 cn(
-                  "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200",
+                  "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 min-h-[40px]",
                   isActive
                     ? "bg-gradient-to-r from-primary-50 to-secondary-50 text-primary-700 border-l-4 border-primary-500"
                     : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
                 )
               }
             >
-              <ApperIcon name={item.icon} className="w-5 h-5" />
+<ApperIcon name={item.icon} className="w-5 h-5 flex-shrink-0" />
               {item.name}
             </NavLink>
           ))}

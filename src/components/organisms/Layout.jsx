@@ -16,8 +16,8 @@ const Layout = ({
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  return (
-    <div className="flex h-screen bg-gray-50">
+return (
+    <div className="flex h-screen bg-gray-50 relative">
       {/* Desktop Sidebar */}
       <Sidebar className="hidden lg:block" />
       
@@ -28,8 +28,8 @@ const Layout = ({
       />
       
       {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-<Header
+      <div className="flex-1 flex flex-col overflow-hidden w-full lg:w-auto">
+        <Header
           title={title}
           onMenuClick={() => setMobileMenuOpen(true)}
           onSearch={onSearch}
@@ -39,7 +39,6 @@ const Layout = ({
           filterState={filterState}
           onFilterChange={onFilterChange}
         />
-        
         <main className="flex-1 overflow-y-auto">
           <div className="p-6">
             <Outlet />
