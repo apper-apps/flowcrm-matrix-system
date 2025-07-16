@@ -37,9 +37,9 @@ const ActivityFeed = ({ contactId, className }) => {
     loadData();
   }, []);
 
-  const getContactName = (contactId) => {
+const getContactName = (contactId) => {
     const contact = contacts.find(c => c.Id === contactId);
-    return contact ? contact.name : "Unknown Contact";
+    return contact ? contact.Name : "Unknown Contact";
   };
 
   const getActivityIcon = (type) => {
@@ -76,8 +76,8 @@ const ActivityFeed = ({ contactId, className }) => {
     }
   };
 
-  const filteredActivities = contactId 
-    ? activities.filter(activity => activity.contactId === contactId)
+const filteredActivities = contactId 
+    ? activities.filter(activity => activity.contact_id === contactId)
     : activities;
 
   const sortedActivities = [...filteredActivities].sort(
@@ -136,8 +136,8 @@ const ActivityFeed = ({ contactId, className }) => {
                         <Badge variant={getActivityTypeColor(activity.type)} size="sm">
                           {activity.type}
                         </Badge>
-                        <span className="text-sm font-medium text-gray-900">
-                          {getContactName(activity.contactId)}
+<span className="text-sm font-medium text-gray-900">
+                          {getContactName(activity.contact_id)}
                         </span>
                       </div>
                       <span className="text-xs text-gray-500">

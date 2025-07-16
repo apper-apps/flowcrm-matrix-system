@@ -1,34 +1,41 @@
 import { useState, useEffect } from "react";
+import { toast } from "react-toastify";
 import Card from "@/components/atoms/Card";
 import ApperIcon from "@/components/ApperIcon";
 import Loading from "@/components/ui/Loading";
 import Error from "@/components/ui/Error";
-import { contactService } from "@/services/api/contactService";
-import { dealService } from "@/services/api/dealService";
-import { taskService } from "@/services/api/taskService";
-import { activityService } from "@/services/api/activityService";
 import { cn } from "@/utils/cn";
-
 const DashboardStats = ({ className }) => {
   const [stats, setStats] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const loadStats = async () => {
+const loadStats = async () => {
     try {
       setLoading(true);
       setError(null);
       
-      const [contacts, deals, tasks, activities] = await Promise.all([
-        contactService.getAll(),
-        dealService.getAll(),
-        taskService.getAll(),
-        activityService.getAll()
+      const { ApperClient } = window.ApperSDK;
+      const apperClient = new ApperClient({
+        apperProjectId: import.meta.env.VITE_APPER_PROJECT_ID,
+        apperPublicKey: import.meta.env.VITE_APPER_PUBLIC_KEY
+      });
+      
+      const [contactsRes, dealsRes, tasksRes, activitiesRes] = await Promise.all([
+        apperClient.fetchRecords("app_contact", { fields: [{ field: { Name: "Name" } }] }),
+        apperClient.fetchRecords("deal", { fields: [{ field: { Name: "value" } }, { field: { Name: "stage" } }] }),
+        apperClient.fetchRecords("task", { fields: [{ field: { Name: "completed" } }] }),
+        apperClient.fetchRecords("app_Activity", { fields: [{ field: { Name: "timestamp" } }] })
       ]);
+      
+      const contacts = contactsRes.data || [];
+      const deals = dealsRes.data || [];
+      const tasks = tasksRes.data || [];
+      const activities = activitiesRes.data || [];
 
-      const totalDealValue = deals.reduce((sum, deal) => sum + deal.value, 0);
+      const totalDealValue = deals.reduce((sum, deal) => sum + (deal.value || 0), 0);
       const wonDeals = deals.filter(deal => deal.stage === "closed-won");
-      const wonDealValue = wonDeals.reduce((sum, deal) => sum + deal.value, 0);
+      const wonDealValue = wonDeals.reduce((sum, deal) => sum + (deal.value || 0), 0);
       const pendingTasks = tasks.filter(task => !task.completed);
       const todayActivities = activities.filter(activity => {
         const today = new Date();
@@ -45,8 +52,10 @@ const DashboardStats = ({ className }) => {
         todayActivities: todayActivities.length,
         conversionRate: deals.length > 0 ? ((wonDeals.length / deals.length) * 100).toFixed(1) : 0
       });
-    } catch (err) {
+} catch (err) {
+      console.error("Error loading stats:", err);
       setError(err.message);
+      toast.error("Failed to load dashboard statistics");
     } finally {
       setLoading(false);
     }

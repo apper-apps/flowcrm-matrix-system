@@ -38,11 +38,11 @@ const TaskModal = ({ task, onClose, onSave, type = "add" }) => {
       setFormData({
         title: task.title || "",
         description: task.description || "",
-        dueDate: task.dueDate ? 
-          new Date(task.dueDate).toISOString().split("T")[0] : "",
+dueDate: task.due_date ? 
+          new Date(task.due_date).toISOString().split("T")[0] : "",
         priority: task.priority || "medium",
-        contactId: task.contactId || "",
-        assignedTo: task.assignedTo || "John Doe",
+        contactId: task.contact_id || "",
+        assignedTo: task.assigned_to || "John Doe",
         completed: task.completed || false
       });
     }
@@ -64,16 +64,20 @@ const TaskModal = ({ task, onClose, onSave, type = "add" }) => {
     try {
       let savedTask;
       
-      if (type === "add") {
+if (type === "add") {
         savedTask = await taskService.create({
           ...formData,
-          dueDate: new Date(formData.dueDate).toISOString()
+          contact_id: parseInt(formData.contactId),
+          due_date: formData.dueDate,
+          assigned_to: formData.assignedTo
         });
         toast.success("Task created successfully!");
       } else {
-        savedTask = await taskService.update(task.Id, {
+savedTask = await taskService.update(task.Id, {
           ...formData,
-          dueDate: new Date(formData.dueDate).toISOString()
+          contact_id: parseInt(formData.contactId),
+          due_date: formData.dueDate,
+          assigned_to: formData.assignedTo
         });
         toast.success("Task updated successfully!");
       }

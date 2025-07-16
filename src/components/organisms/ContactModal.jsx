@@ -3,92 +3,153 @@ import { toast } from "react-toastify";
 import Button from "@/components/atoms/Button";
 import FormField from "@/components/molecules/FormField";
 import ApperIcon from "@/components/ApperIcon";
-import { contactService } from "@/services/api/contactService";
 import { cn } from "@/utils/cn";
 
 const ContactModal = ({ contact, onClose, onSave, type = "add" }) => {
   const [formData, setFormData] = useState({
-    name: "",
+    Name: "",
     email: "",
     phone: "",
-    company: "",
+company: "",
     position: "",
-    tags: []
+    Tags: ""
   });
   const [loading, setLoading] = useState(false);
   const [tagInput, setTagInput] = useState("");
 
   useEffect(() => {
-    if (contact && type !== "add") {
+if (contact && type !== "add") {
       setFormData({
-        name: contact.name || "",
+        Name: contact.Name || "",
         email: contact.email || "",
         phone: contact.phone || "",
         company: contact.company || "",
         position: contact.position || "",
-        tags: contact.tags || []
+        Tags: contact.Tags || ""
       });
     }
   }, [contact, type]);
 
-  const handleSubmit = async (e) => {
+const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     
     try {
-      let savedContact;
+      const { ApperClient } = window.ApperSDK;
+      const apperClient = new ApperClient({
+        apperProjectId: import.meta.env.VITE_APPER_PROJECT_ID,
+        apperPublicKey: import.meta.env.VITE_APPER_PUBLIC_KEY
+      });
       
+      const recordData = {
+        Name: formData.Name,
+        email: formData.email,
+        phone: formData.phone,
+        company: formData.company,
+        position: formData.position,
+        Tags: formData.Tags,
+        created_at: new Date().toISOString(),
+        last_activity: new Date().toISOString()
+      };
+      
+      let response;
       if (type === "add") {
-        savedContact = await contactService.create({
-          ...formData,
-          createdAt: new Date().toISOString(),
-          lastActivity: new Date().toISOString()
+        response = await apperClient.createRecord("app_contact", {
+          records: [recordData]
         });
-        toast.success("Contact created successfully!");
       } else {
-        savedContact = await contactService.update(contact.Id, {
-          ...formData,
-          lastActivity: new Date().toISOString()
+        response = await apperClient.updateRecord("app_contact", {
+          records: [{
+            Id: contact.Id,
+            ...recordData
+          }]
         });
-        toast.success("Contact updated successfully!");
       }
       
-      onSave(savedContact);
-      onClose();
+      if (!response.success) {
+        console.error(response.message);
+        toast.error(response.message);
+        return;
+      }
+      
+      if (response.results) {
+        const successfulRecords = response.results.filter(result => result.success);
+        const failedRecords = response.results.filter(result => !result.success);
+        
+        if (failedRecords.length > 0) {
+          console.error(`Failed to ${type} ${failedRecords.length} contacts:${JSON.stringify(failedRecords)}`);
+          
+          failedRecords.forEach(record => {
+            record.errors?.forEach(error => {
+              toast.error(`${error.fieldLabel}: ${error.message}`);
+            });
+            if (record.message) toast.error(record.message);
+          });
+        }
+        
+        if (successfulRecords.length > 0) {
+          toast.success(`Contact ${type === "add" ? "created" : "updated"} successfully!`);
+          onSave(successfulRecords[0].data);
+          onClose();
+        }
+      }
     } catch (error) {
+      console.error("Error saving contact:", error);
       toast.error("Failed to save contact");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDelete = async () => {
+const handleDelete = async () => {
     if (window.confirm("Are you sure you want to delete this contact?")) {
       try {
-        await contactService.delete(contact.Id);
+        const { ApperClient } = window.ApperSDK;
+        const apperClient = new ApperClient({
+          apperProjectId: import.meta.env.VITE_APPER_PROJECT_ID,
+          apperPublicKey: import.meta.env.VITE_APPER_PUBLIC_KEY
+        });
+        
+        const response = await apperClient.deleteRecord("app_contact", {
+          RecordIds: [contact.Id]
+        });
+        
+        if (!response.success) {
+          console.error(response.message);
+          toast.error(response.message);
+          return;
+        }
+        
         toast.success("Contact deleted successfully!");
         onSave(null);
         onClose();
       } catch (error) {
+        console.error("Error deleting contact:", error);
         toast.error("Failed to delete contact");
       }
     }
   };
 
-  const handleAddTag = () => {
-    if (tagInput.trim() && !formData.tags.includes(tagInput.trim())) {
-      setFormData(prev => ({
-        ...prev,
-        tags: [...prev.tags, tagInput.trim()]
-      }));
-      setTagInput("");
+const handleAddTag = () => {
+    if (tagInput.trim()) {
+      const currentTags = formData.Tags ? formData.Tags.split(',') : [];
+      if (!currentTags.includes(tagInput.trim())) {
+        const newTags = [...currentTags, tagInput.trim()];
+        setFormData(prev => ({
+          ...prev,
+          Tags: newTags.join(',')
+        }));
+        setTagInput("");
+      }
     }
   };
 
   const handleRemoveTag = (tagToRemove) => {
+    const currentTags = formData.Tags ? formData.Tags.split(',') : [];
+    const newTags = currentTags.filter(tag => tag !== tagToRemove);
     setFormData(prev => ({
       ...prev,
-      tags: prev.tags.filter(tag => tag !== tagToRemove)
+      Tags: newTags.join(',')
     }));
   };
 
@@ -111,14 +172,13 @@ const ContactModal = ({ contact, onClose, onSave, type = "add" }) => {
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          <FormField
+<FormField
             label="Name"
-            value={formData.name}
-            onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+            value={formData.Name}
+            onChange={(e) => setFormData(prev => ({ ...prev, Name: e.target.value }))}
             placeholder="Enter contact name"
             required
           />
-
           <FormField
             label="Email"
             type="email"
@@ -172,8 +232,8 @@ const ContactModal = ({ contact, onClose, onSave, type = "add" }) => {
                 <ApperIcon name="Plus" className="w-4 h-4" />
               </Button>
             </div>
-            <div className="flex flex-wrap gap-2 mt-2">
-              {formData.tags.map((tag, index) => (
+<div className="flex flex-wrap gap-2 mt-2">
+              {formData.Tags?.split(',').filter(tag => tag.trim()).map((tag, index) => (
                 <span
                   key={index}
                   className="inline-flex items-center gap-1 px-2 py-1 bg-primary-100 text-primary-800 rounded-full text-sm"

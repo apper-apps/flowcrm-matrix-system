@@ -48,9 +48,9 @@ const DealPipeline = ({ filters = [], onDealSelect, className }) => {
     loadData();
   }, []);
 
-  const getContactName = (contactId) => {
+const getContactName = (contactId) => {
     const contact = contacts.find(c => c.Id === contactId);
-    return contact ? contact.name : "Unknown Contact";
+    return contact ? contact.Name : "Unknown Contact";
   };
 
 const getDealsByStage = (stageId) => {
@@ -169,12 +169,12 @@ const getDealsByStage = (stageId) => {
                         
                         <div className="flex items-center gap-1">
                           <ApperIcon name="User" className="w-3 h-3" />
-                          <span>{getContactName(deal.contactId)}</span>
+<span>{getContactName(deal.contact_id)}</span>
                         </div>
                         
                         <div className="flex items-center gap-1">
                           <ApperIcon name="Calendar" className="w-3 h-3" />
-                          <span>{format(new Date(deal.expectedCloseDate), "MMM d")}</span>
+<span>{format(new Date(deal.expected_close_date), "MMM d")}</span>
                         </div>
                         
                         <div className="flex items-center gap-1">

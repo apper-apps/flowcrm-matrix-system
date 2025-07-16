@@ -34,11 +34,11 @@ const DealModal = ({ deal, onClose, onSave, type = "add" }) => {
       setFormData({
         title: deal.title || "",
         value: deal.value || "",
-        stage: deal.stage || "prospect",
-        contactId: deal.contactId || "",
+stage: deal.stage || "prospect",
+        contactId: deal.contact_id || "",
         probability: deal.probability || 50,
         expectedCloseDate: deal.expectedCloseDate ? 
-          new Date(deal.expectedCloseDate).toISOString().split("T")[0] : ""
+new Date(deal.expected_close_date).toISOString().split("T")[0] : ""
       });
     }
   }, [deal, type]);
@@ -59,17 +59,21 @@ const DealModal = ({ deal, onClose, onSave, type = "add" }) => {
     try {
       let savedDeal;
       
-      if (type === "add") {
+if (type === "add") {
         savedDeal = await dealService.create({
           ...formData,
           value: parseFloat(formData.value),
-          createdAt: new Date().toISOString()
+          contact_id: parseInt(formData.contactId),
+          expected_close_date: formData.expectedCloseDate,
+          created_at: new Date().toISOString()
         });
         toast.success("Deal created successfully!");
       } else {
-        savedDeal = await dealService.update(deal.Id, {
+savedDeal = await dealService.update(deal.Id, {
           ...formData,
-          value: parseFloat(formData.value)
+          value: parseFloat(formData.value),
+          contact_id: parseInt(formData.contactId),
+          expected_close_date: formData.expectedCloseDate
         });
         toast.success("Deal updated successfully!");
       }

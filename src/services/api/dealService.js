@@ -1,119 +1,165 @@
-import dealsData from "@/services/mockData/deals.json";
-
 class DealService {
   constructor() {
-    this.deals = [...dealsData];
+    this.tableName = "deal";
   }
 
   async getAll() {
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 300));
-    return [...this.deals];
+    try {
+      const { ApperClient } = window.ApperSDK;
+      const apperClient = new ApperClient({
+        apperProjectId: import.meta.env.VITE_APPER_PROJECT_ID,
+        apperPublicKey: import.meta.env.VITE_APPER_PUBLIC_KEY
+      });
+      
+      const params = {
+        fields: [
+          { field: { Name: "Name" } },
+          { field: { Name: "Tags" } },
+          { field: { Name: "Owner" } },
+          { field: { Name: "title" } },
+          { field: { Name: "value" } },
+          { field: { Name: "stage" } },
+          { field: { Name: "probability" } },
+          { field: { Name: "expected_close_date" } },
+          { field: { Name: "created_at" } },
+          { field: { Name: "contact_id" } }
+        ]
+      };
+      
+      const response = await apperClient.fetchRecords(this.tableName, params);
+      return response.data || [];
+    } catch (error) {
+      console.error("Error in dealService.getAll:", error);
+      throw error;
+    }
   }
 
   async getById(id) {
-    await new Promise(resolve => setTimeout(resolve, 200));
-    const deal = this.deals.find(d => d.Id === id);
-    if (!deal) {
-      throw new Error("Deal not found");
+    try {
+      const { ApperClient } = window.ApperSDK;
+      const apperClient = new ApperClient({
+        apperProjectId: import.meta.env.VITE_APPER_PROJECT_ID,
+        apperPublicKey: import.meta.env.VITE_APPER_PUBLIC_KEY
+      });
+      
+      const params = {
+        fields: [
+          { field: { Name: "Name" } },
+          { field: { Name: "Tags" } },
+          { field: { Name: "Owner" } },
+          { field: { Name: "title" } },
+          { field: { Name: "value" } },
+          { field: { Name: "stage" } },
+          { field: { Name: "probability" } },
+          { field: { Name: "expected_close_date" } },
+          { field: { Name: "created_at" } },
+          { field: { Name: "contact_id" } }
+        ]
+      };
+      
+      const response = await apperClient.getRecordById(this.tableName, id, params);
+      return response.data;
+    } catch (error) {
+      console.error("Error in dealService.getById:", error);
+      throw error;
     }
-    return { ...deal };
   }
 
   async create(dealData) {
-    await new Promise(resolve => setTimeout(resolve, 400));
-    const newDeal = {
-      ...dealData,
-      Id: Math.max(...this.deals.map(d => d.Id)) + 1
-    };
-    this.deals.push(newDeal);
-    return { ...newDeal };
+    try {
+      const { ApperClient } = window.ApperSDK;
+      const apperClient = new ApperClient({
+        apperProjectId: import.meta.env.VITE_APPER_PROJECT_ID,
+        apperPublicKey: import.meta.env.VITE_APPER_PUBLIC_KEY
+      });
+      
+      const params = {
+        records: [{
+          Name: dealData.Name,
+          Tags: dealData.Tags,
+          Owner: dealData.Owner,
+          title: dealData.title,
+          value: dealData.value,
+          stage: dealData.stage,
+          probability: dealData.probability,
+          expected_close_date: dealData.expected_close_date,
+          created_at: new Date().toISOString(),
+          contact_id: dealData.contact_id
+        }]
+      };
+      
+      const response = await apperClient.createRecord(this.tableName, params);
+      
+      if (!response.success) {
+        throw new Error(response.message);
+      }
+      
+      return response.results?.[0]?.data;
+    } catch (error) {
+      console.error("Error in dealService.create:", error);
+      throw error;
+    }
   }
 
   async update(id, updateData) {
-    await new Promise(resolve => setTimeout(resolve, 350));
-    const index = this.deals.findIndex(d => d.Id === id);
-    if (index === -1) {
-      throw new Error("Deal not found");
+    try {
+      const { ApperClient } = window.ApperSDK;
+      const apperClient = new ApperClient({
+        apperProjectId: import.meta.env.VITE_APPER_PROJECT_ID,
+        apperPublicKey: import.meta.env.VITE_APPER_PUBLIC_KEY
+      });
+      
+      const params = {
+        records: [{
+          Id: id,
+          Name: updateData.Name,
+          Tags: updateData.Tags,
+          Owner: updateData.Owner,
+          title: updateData.title,
+          value: updateData.value,
+          stage: updateData.stage,
+          probability: updateData.probability,
+          expected_close_date: updateData.expected_close_date,
+          contact_id: updateData.contact_id
+        }]
+      };
+      
+      const response = await apperClient.updateRecord(this.tableName, params);
+      
+      if (!response.success) {
+        throw new Error(response.message);
+      }
+      
+      return response.results?.[0]?.data;
+    } catch (error) {
+      console.error("Error in dealService.update:", error);
+      throw error;
     }
-    this.deals[index] = { ...this.deals[index], ...updateData };
-    return { ...this.deals[index] };
   }
 
   async delete(id) {
-    await new Promise(resolve => setTimeout(resolve, 300));
-const index = this.deals.findIndex(d => d.Id === id);
-    if (index === -1) {
-      throw new Error("Deal not found");
-    }
-    this.deals.splice(index, 1);
-    return true;
-  }
-  async search(query) {
-    await new Promise(resolve => setTimeout(resolve, 200));
-    const searchTerm = query.toLowerCase();
-    
-    return this.deals.filter(deal =>
-      deal.title.toLowerCase().includes(searchTerm) ||
-      deal.stage.toLowerCase().includes(searchTerm)
-    );
-  }
-
-  async filter(filters) {
-    await new Promise(resolve => setTimeout(resolve, 300));
-    let filtered = [...this.deals];
-
-    for (const filter of filters) {
-      filtered = this.applyFilter(filtered, filter);
-    }
-
-    return filtered;
-  }
-
-  applyFilter(deals, filter) {
-    const { field, operator, value, value2 } = filter;
-
-    return deals.filter(deal => {
-      const fieldValue = deal[field];
-
-      switch (operator) {
-        case "contains":
-          return String(fieldValue).toLowerCase().includes(String(value).toLowerCase());
-        
-        case "equals":
-          return String(fieldValue).toLowerCase() === String(value).toLowerCase();
-        
-        case "startsWith":
-          return String(fieldValue).toLowerCase().startsWith(String(value).toLowerCase());
-        
-        case "before":
-          return new Date(fieldValue) < new Date(value);
-        
-        case "after":
-          return new Date(fieldValue) > new Date(value);
-        
-        case "between":
-          if (field === "value" || field === "probability") {
-            const numValue = Number(fieldValue);
-            return numValue >= Number(value) && numValue <= Number(value2);
-          } else {
-            const date = new Date(fieldValue);
-            return date >= new Date(value) && date <= new Date(value2);
-          }
-        
-        case "greaterThan":
-          return Number(fieldValue) > Number(value);
-        
-        case "lessThan":
-          return Number(fieldValue) < Number(value);
-        
-        case "in":
-          return String(fieldValue) === String(value);
-        
-        default:
-          return true;
+    try {
+      const { ApperClient } = window.ApperSDK;
+      const apperClient = new ApperClient({
+        apperProjectId: import.meta.env.VITE_APPER_PROJECT_ID,
+        apperPublicKey: import.meta.env.VITE_APPER_PUBLIC_KEY
+      });
+      
+      const params = {
+        RecordIds: [id]
+      };
+      
+      const response = await apperClient.deleteRecord(this.tableName, params);
+      
+      if (!response.success) {
+        throw new Error(response.message);
       }
-});
+      
+      return true;
+    } catch (error) {
+      console.error("Error in dealService.delete:", error);
+      throw error;
+    }
   }
 }
 

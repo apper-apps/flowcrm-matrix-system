@@ -40,12 +40,12 @@ const TaskList = ({ onTaskSelect, className }) => {
     loadData();
   }, []);
 
-  const getContactName = (contactId) => {
+const getContactName = (contactId) => {
     const contact = contacts.find(c => c.Id === contactId);
-    return contact ? contact.name : "Unknown Contact";
+    return contact ? contact.Name : "Unknown Contact";
   };
 
-  const handleToggleComplete = async (taskId) => {
+const handleToggleComplete = async (taskId) => {
     try {
       const task = tasks.find(t => t.Id === taskId);
       const updatedTask = await taskService.update(taskId, {
@@ -77,9 +77,9 @@ const TaskList = ({ onTaskSelect, className }) => {
         return tasks.filter(task => !task.completed);
       case "completed":
         return tasks.filter(task => task.completed);
-      case "overdue":
+case "overdue":
         return tasks.filter(task => 
-          !task.completed && new Date(task.dueDate) < new Date()
+          !task.completed && new Date(task.due_date) < new Date()
         );
       default:
         return tasks;
@@ -201,16 +201,16 @@ const TaskList = ({ onTaskSelect, className }) => {
 
                     <div className="flex items-center gap-4 text-xs text-gray-500">
                       <div className="flex items-center gap-1">
-                        <ApperIcon name="Calendar" className="w-3 h-3" />
-                        <span>Due: {format(new Date(task.dueDate), "MMM d, yyyy")}</span>
+<ApperIcon name="Calendar" className="w-3 h-3" />
+                        <span>Due: {format(new Date(task.due_date), "MMM d, yyyy")}</span>
                       </div>
                       <div className="flex items-center gap-1">
-                        <ApperIcon name="User" className="w-3 h-3" />
-                        <span>{getContactName(task.contactId)}</span>
+<ApperIcon name="User" className="w-3 h-3" />
+                        <span>{getContactName(task.contact_id)}</span>
                       </div>
                       <div className="flex items-center gap-1">
-                        <ApperIcon name="UserCheck" className="w-3 h-3" />
-                        <span>{task.assignedTo}</span>
+<ApperIcon name="UserCheck" className="w-3 h-3" />
+                        <span>{task.assigned_to}</span>
                       </div>
                     </div>
                   </div>

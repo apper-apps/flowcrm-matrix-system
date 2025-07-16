@@ -1,53 +1,158 @@
-import activitiesData from "@/services/mockData/activities.json";
-
 class ActivityService {
   constructor() {
-    this.activities = [...activitiesData];
+    this.tableName = "app_Activity";
   }
 
   async getAll() {
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 300));
-    return [...this.activities];
+    try {
+      const { ApperClient } = window.ApperSDK;
+      const apperClient = new ApperClient({
+        apperProjectId: import.meta.env.VITE_APPER_PROJECT_ID,
+        apperPublicKey: import.meta.env.VITE_APPER_PUBLIC_KEY
+      });
+      
+      const params = {
+        fields: [
+          { field: { Name: "Name" } },
+          { field: { Name: "Tags" } },
+          { field: { Name: "Owner" } },
+          { field: { Name: "type" } },
+          { field: { Name: "description" } },
+          { field: { Name: "timestamp" } },
+          { field: { Name: "metadata" } },
+          { field: { Name: "contact_id" } }
+        ]
+      };
+      
+      const response = await apperClient.fetchRecords(this.tableName, params);
+      return response.data || [];
+    } catch (error) {
+      console.error("Error in activityService.getAll:", error);
+      throw error;
+    }
   }
 
   async getById(id) {
-    await new Promise(resolve => setTimeout(resolve, 200));
-    const activity = this.activities.find(a => a.Id === id);
-    if (!activity) {
-      throw new Error("Activity not found");
+    try {
+      const { ApperClient } = window.ApperSDK;
+      const apperClient = new ApperClient({
+        apperProjectId: import.meta.env.VITE_APPER_PROJECT_ID,
+        apperPublicKey: import.meta.env.VITE_APPER_PUBLIC_KEY
+      });
+      
+      const params = {
+        fields: [
+          { field: { Name: "Name" } },
+          { field: { Name: "Tags" } },
+          { field: { Name: "Owner" } },
+          { field: { Name: "type" } },
+          { field: { Name: "description" } },
+          { field: { Name: "timestamp" } },
+          { field: { Name: "metadata" } },
+          { field: { Name: "contact_id" } }
+        ]
+      };
+      
+      const response = await apperClient.getRecordById(this.tableName, id, params);
+      return response.data;
+    } catch (error) {
+      console.error("Error in activityService.getById:", error);
+      throw error;
     }
-    return { ...activity };
   }
 
   async create(activityData) {
-    await new Promise(resolve => setTimeout(resolve, 400));
-    const newActivity = {
-      ...activityData,
-      Id: Math.max(...this.activities.map(a => a.Id)) + 1
-    };
-    this.activities.push(newActivity);
-    return { ...newActivity };
+    try {
+      const { ApperClient } = window.ApperSDK;
+      const apperClient = new ApperClient({
+        apperProjectId: import.meta.env.VITE_APPER_PROJECT_ID,
+        apperPublicKey: import.meta.env.VITE_APPER_PUBLIC_KEY
+      });
+      
+      const params = {
+        records: [{
+          Name: activityData.Name,
+          Tags: activityData.Tags,
+          Owner: activityData.Owner,
+          type: activityData.type,
+          description: activityData.description,
+          timestamp: activityData.timestamp,
+          metadata: activityData.metadata,
+          contact_id: activityData.contact_id
+        }]
+      };
+      
+      const response = await apperClient.createRecord(this.tableName, params);
+      
+      if (!response.success) {
+        throw new Error(response.message);
+      }
+      
+      return response.results?.[0]?.data;
+    } catch (error) {
+      console.error("Error in activityService.create:", error);
+      throw error;
+    }
   }
 
   async update(id, updateData) {
-    await new Promise(resolve => setTimeout(resolve, 350));
-    const index = this.activities.findIndex(a => a.Id === id);
-    if (index === -1) {
-      throw new Error("Activity not found");
+    try {
+      const { ApperClient } = window.ApperSDK;
+      const apperClient = new ApperClient({
+        apperProjectId: import.meta.env.VITE_APPER_PROJECT_ID,
+        apperPublicKey: import.meta.env.VITE_APPER_PUBLIC_KEY
+      });
+      
+      const params = {
+        records: [{
+          Id: id,
+          Name: updateData.Name,
+          Tags: updateData.Tags,
+          Owner: updateData.Owner,
+          type: updateData.type,
+          description: updateData.description,
+          timestamp: updateData.timestamp,
+          metadata: updateData.metadata,
+          contact_id: updateData.contact_id
+        }]
+      };
+      
+      const response = await apperClient.updateRecord(this.tableName, params);
+      
+      if (!response.success) {
+        throw new Error(response.message);
+      }
+      
+      return response.results?.[0]?.data;
+    } catch (error) {
+      console.error("Error in activityService.update:", error);
+      throw error;
     }
-    this.activities[index] = { ...this.activities[index], ...updateData };
-    return { ...this.activities[index] };
   }
 
   async delete(id) {
-    await new Promise(resolve => setTimeout(resolve, 300));
-    const index = this.activities.findIndex(a => a.Id === id);
-    if (index === -1) {
-      throw new Error("Activity not found");
+    try {
+      const { ApperClient } = window.ApperSDK;
+      const apperClient = new ApperClient({
+        apperProjectId: import.meta.env.VITE_APPER_PROJECT_ID,
+        apperPublicKey: import.meta.env.VITE_APPER_PUBLIC_KEY
+      });
+      
+      const params = {
+        RecordIds: [id]
+      };
+      
+      const response = await apperClient.deleteRecord(this.tableName, params);
+      
+      if (!response.success) {
+        throw new Error(response.message);
+      }
+      
+      return true;
+    } catch (error) {
+      console.error("Error in activityService.delete:", error);
+      throw error;
     }
-    this.activities.splice(index, 1);
-    return true;
   }
 }
 

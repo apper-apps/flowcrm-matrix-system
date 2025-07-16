@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { format } from "date-fns";
+import { toast } from "react-toastify";
 import Card from "@/components/atoms/Card";
 import Button from "@/components/atoms/Button";
 import Badge from "@/components/atoms/Badge";
@@ -7,7 +8,6 @@ import ApperIcon from "@/components/ApperIcon";
 import Loading from "@/components/ui/Loading";
 import Error from "@/components/ui/Error";
 import Empty from "@/components/ui/Empty";
-import { contactService } from "@/services/api/contactService";
 import { filterManager } from "@/services/api/filterManager";
 import { cn } from "@/utils/cn";
 
@@ -16,14 +16,45 @@ const ContactList = ({ searchTerm, filters = [], onContactSelect, className }) =
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const loadContacts = async () => {
+const loadContacts = async () => {
     try {
       setLoading(true);
       setError(null);
-      const data = await contactService.getAll();
-      setContacts(data);
+      
+      const { ApperClient } = window.ApperSDK;
+      const apperClient = new ApperClient({
+        apperProjectId: import.meta.env.VITE_APPER_PROJECT_ID,
+        apperPublicKey: import.meta.env.VITE_APPER_PUBLIC_KEY
+      });
+      
+      const params = {
+        fields: [
+          { field: { Name: "Name" } },
+          { field: { Name: "Tags" } },
+          { field: { Name: "Owner" } },
+          { field: { Name: "email" } },
+          { field: { Name: "phone" } },
+          { field: { Name: "company" } },
+          { field: { Name: "position" } },
+          { field: { Name: "created_at" } },
+          { field: { Name: "last_activity" } }
+        ]
+      };
+      
+      const response = await apperClient.fetchRecords("app_contact", params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        toast.error(response.message);
+        setError(response.message);
+        return;
+      }
+      
+      setContacts(response.data || []);
     } catch (err) {
+      console.error("Error loading contacts:", err);
       setError(err.message);
+      toast.error("Failed to load contacts");
     } finally {
       setLoading(false);
     }
@@ -37,11 +68,11 @@ const filteredContacts = (() => {
     let filtered = contacts;
     
     // Apply search term filter
-    if (searchTerm) {
+if (searchTerm) {
       filtered = filtered.filter(contact =>
-        contact.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        contact.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        contact.company.toLowerCase().includes(searchTerm.toLowerCase())
+        contact.Name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        contact.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        contact.company?.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
     
@@ -137,17 +168,17 @@ const filteredContacts = (() => {
                   onClick={() => onContactSelect({ type: "view", contact })}
                 >
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
+<div className="flex items-center">
                       <div className="flex-shrink-0 h-10 w-10">
                         <div className="h-10 w-10 rounded-full bg-gradient-to-r from-primary-500 to-secondary-500 flex items-center justify-center">
                           <span className="text-white font-medium text-sm">
-                            {contact.name.split(" ").map(n => n[0]).join("").toUpperCase()}
+                            {contact.Name?.split(" ").map(n => n[0]).join("").toUpperCase()}
                           </span>
                         </div>
                       </div>
                       <div className="ml-4">
                         <div className="text-sm font-medium text-gray-900">
-                          {contact.name}
+                          {contact.Name}
                         </div>
                         <div className="text-sm text-gray-500">
                           {contact.email}
@@ -155,23 +186,23 @@ const filteredContacts = (() => {
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+<td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-gray-900">{contact.company}</div>
                     <div className="text-sm text-gray-500">{contact.position}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {format(new Date(contact.lastActivity), "MMM d, yyyy")}
+                    {contact.last_activity && format(new Date(contact.last_activity), "MMM d, yyyy")}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex flex-wrap gap-1">
-                      {contact.tags.slice(0, 2).map((tag, index) => (
+                      {contact.Tags?.split(',').slice(0, 2).map((tag, index) => (
                         <Badge key={index} variant="primary" size="sm">
                           {tag}
                         </Badge>
-                      ))}
-                      {contact.tags.length > 2 && (
+))}
+                      {contact.Tags?.split(',').length > 2 && (
                         <Badge variant="default" size="sm">
-                          +{contact.tags.length - 2}
+                          +{contact.Tags.split(',').length - 2}
                         </Badge>
                       )}
                     </div>

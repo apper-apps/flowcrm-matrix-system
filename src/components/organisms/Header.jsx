@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
+import { useSelector } from 'react-redux';
 import Button from "@/components/atoms/Button";
 import SearchBar from "@/components/molecules/SearchBar";
 import QuickActions from "@/components/molecules/QuickActions";
 import ApperIcon from "@/components/ApperIcon";
+import { AuthContext } from "../../App";
 import { cn } from "@/utils/cn";
 
 const Header = ({ 
@@ -14,6 +16,8 @@ const Header = ({
   onAddTask,
   className 
 }) => {
+  const { logout } = useContext(AuthContext);
+  const { user } = useSelector((state) => state.user);
   return (
     <header className={cn("bg-white border-b border-gray-200 px-6 py-4", className)}>
       <div className="flex items-center justify-between">
@@ -29,7 +33,7 @@ const Header = ({
           <h1 className="text-2xl font-bold text-gray-900">{title}</h1>
         </div>
         
-        <div className="flex items-center gap-4">
+<div className="flex items-center gap-4">
           <SearchBar
             placeholder="Search contacts, deals, tasks..."
             onSearch={onSearch}
@@ -40,6 +44,29 @@ const Header = ({
             onAddDeal={onAddDeal}
             onAddTask={onAddTask}
           />
+          
+          {/* User Profile & Logout */}
+          <div className="flex items-center gap-3">
+            <div className="hidden md:flex items-center gap-2">
+              <div className="w-8 h-8 rounded-full bg-gradient-to-r from-primary-500 to-secondary-500 flex items-center justify-center">
+                <span className="text-white font-medium text-sm">
+                  {user?.firstName?.[0] || user?.emailAddress?.[0] || 'U'}
+                </span>
+              </div>
+              <span className="text-sm text-gray-700">
+                {user?.firstName || user?.emailAddress || 'User'}
+              </span>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={logout}
+              className="flex items-center gap-2"
+            >
+              <ApperIcon name="LogOut" className="w-4 h-4" />
+              <span className="hidden sm:inline">Logout</span>
+            </Button>
+          </div>
         </div>
       </div>
     </header>

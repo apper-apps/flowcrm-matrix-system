@@ -1,107 +1,161 @@
-import contactsData from "@/services/mockData/contacts.json";
 class ContactService {
   constructor() {
-    this.contacts = [...contactsData];
+    this.tableName = "app_contact";
   }
 
   async getAll() {
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 300));
-    return [...this.contacts];
+    try {
+      const { ApperClient } = window.ApperSDK;
+      const apperClient = new ApperClient({
+        apperProjectId: import.meta.env.VITE_APPER_PROJECT_ID,
+        apperPublicKey: import.meta.env.VITE_APPER_PUBLIC_KEY
+      });
+      
+      const params = {
+        fields: [
+          { field: { Name: "Name" } },
+          { field: { Name: "Tags" } },
+          { field: { Name: "Owner" } },
+          { field: { Name: "email" } },
+          { field: { Name: "phone" } },
+          { field: { Name: "company" } },
+          { field: { Name: "position" } },
+          { field: { Name: "created_at" } },
+          { field: { Name: "last_activity" } }
+        ]
+      };
+      
+      const response = await apperClient.fetchRecords(this.tableName, params);
+      return response.data || [];
+    } catch (error) {
+      console.error("Error in contactService.getAll:", error);
+      throw error;
+    }
   }
 
   async getById(id) {
-    await new Promise(resolve => setTimeout(resolve, 200));
-    const contact = this.contacts.find(c => c.Id === id);
-    if (!contact) {
-      throw new Error("Contact not found");
+    try {
+      const { ApperClient } = window.ApperSDK;
+      const apperClient = new ApperClient({
+        apperProjectId: import.meta.env.VITE_APPER_PROJECT_ID,
+        apperPublicKey: import.meta.env.VITE_APPER_PUBLIC_KEY
+      });
+      
+      const params = {
+        fields: [
+          { field: { Name: "Name" } },
+          { field: { Name: "Tags" } },
+          { field: { Name: "Owner" } },
+          { field: { Name: "email" } },
+          { field: { Name: "phone" } },
+          { field: { Name: "company" } },
+          { field: { Name: "position" } },
+          { field: { Name: "created_at" } },
+          { field: { Name: "last_activity" } }
+        ]
+      };
+      
+      const response = await apperClient.getRecordById(this.tableName, id, params);
+      return response.data;
+    } catch (error) {
+      console.error("Error in contactService.getById:", error);
+      throw error;
     }
-    return { ...contact };
   }
 
   async create(contactData) {
-    await new Promise(resolve => setTimeout(resolve, 400));
-    const newContact = {
-      ...contactData,
-      Id: Math.max(...this.contacts.map(c => c.Id)) + 1
-    };
-    this.contacts.push(newContact);
-    return { ...newContact };
+    try {
+      const { ApperClient } = window.ApperSDK;
+      const apperClient = new ApperClient({
+        apperProjectId: import.meta.env.VITE_APPER_PROJECT_ID,
+        apperPublicKey: import.meta.env.VITE_APPER_PUBLIC_KEY
+      });
+      
+      const params = {
+        records: [{
+          Name: contactData.Name,
+          Tags: contactData.Tags,
+          Owner: contactData.Owner,
+          email: contactData.email,
+          phone: contactData.phone,
+          company: contactData.company,
+          position: contactData.position,
+          created_at: new Date().toISOString(),
+          last_activity: new Date().toISOString()
+        }]
+      };
+      
+      const response = await apperClient.createRecord(this.tableName, params);
+      
+      if (!response.success) {
+        throw new Error(response.message);
+      }
+      
+      return response.results?.[0]?.data;
+    } catch (error) {
+      console.error("Error in contactService.create:", error);
+      throw error;
+    }
   }
 
   async update(id, updateData) {
-    await new Promise(resolve => setTimeout(resolve, 350));
-    const index = this.contacts.findIndex(c => c.Id === id);
-    if (index === -1) {
-      throw new Error("Contact not found");
+    try {
+      const { ApperClient } = window.ApperSDK;
+      const apperClient = new ApperClient({
+        apperProjectId: import.meta.env.VITE_APPER_PROJECT_ID,
+        apperPublicKey: import.meta.env.VITE_APPER_PUBLIC_KEY
+      });
+      
+      const params = {
+        records: [{
+          Id: id,
+          Name: updateData.Name,
+          Tags: updateData.Tags,
+          Owner: updateData.Owner,
+          email: updateData.email,
+          phone: updateData.phone,
+          company: updateData.company,
+          position: updateData.position,
+          last_activity: new Date().toISOString()
+        }]
+      };
+      
+      const response = await apperClient.updateRecord(this.tableName, params);
+      
+      if (!response.success) {
+        throw new Error(response.message);
+      }
+      
+      return response.results?.[0]?.data;
+    } catch (error) {
+      console.error("Error in contactService.update:", error);
+      throw error;
     }
-    this.contacts[index] = { ...this.contacts[index], ...updateData };
-    return { ...this.contacts[index] };
   }
 
-async delete(id) {
-    await new Promise(resolve => setTimeout(resolve, 300));
-    const index = this.contacts.findIndex(c => c.Id === id);
-    if (index === -1) {
-      throw new Error("Contact not found");
+  async delete(id) {
+    try {
+      const { ApperClient } = window.ApperSDK;
+      const apperClient = new ApperClient({
+        apperProjectId: import.meta.env.VITE_APPER_PROJECT_ID,
+        apperPublicKey: import.meta.env.VITE_APPER_PUBLIC_KEY
+      });
+      
+      const params = {
+        RecordIds: [id]
+      };
+      
+      const response = await apperClient.deleteRecord(this.tableName, params);
+      
+      if (!response.success) {
+        throw new Error(response.message);
+      }
+      
+      return true;
+    } catch (error) {
+      console.error("Error in contactService.delete:", error);
+      throw error;
     }
-    this.contacts.splice(index, 1);
-    return true;
-  }
-  async search(query) {
-    await new Promise(resolve => setTimeout(resolve, 200));
-    const searchTerm = query.toLowerCase();
-    
-    return this.contacts.filter(contact =>
-      contact.name.toLowerCase().includes(searchTerm) ||
-      contact.email.toLowerCase().includes(searchTerm) ||
-      contact.company.toLowerCase().includes(searchTerm) ||
-      contact.position.toLowerCase().includes(searchTerm) ||
-      contact.tags.some(tag => tag.toLowerCase().includes(searchTerm))
-    );
-  }
-
-  async filter(filters) {
-    await new Promise(resolve => setTimeout(resolve, 300));
-    let filtered = [...this.contacts];
-
-    for (const filter of filters) {
-      filtered = this.applyFilter(filtered, filter);
-    }
-
-    return filtered;
-  }
-
-  applyFilter(contacts, filter) {
-    const { field, operator, value, value2 } = filter;
-
-    return contacts.filter(contact => {
-      const fieldValue = contact[field];
-
-      switch (operator) {
-        case "contains":
-          return String(fieldValue).toLowerCase().includes(String(value).toLowerCase());
-        
-        case "equals":
-          return String(fieldValue).toLowerCase() === String(value).toLowerCase();
-        
-        case "startsWith":
-          return String(fieldValue).toLowerCase().startsWith(String(value).toLowerCase());
-        
-        case "before":
-          return new Date(fieldValue) < new Date(value);
-        
-        case "after":
-          return new Date(fieldValue) > new Date(value);
-        
-        case "between":
-          const date = new Date(fieldValue);
-          return date >= new Date(value) && date <= new Date(value2);
-        
-        default:
-          return true;
-}
-    });
   }
 }
 
