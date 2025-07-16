@@ -1,10 +1,14 @@
 import { useState } from "react";
 import DealPipeline from "@/components/organisms/DealPipeline";
 import DealModal from "@/components/organisms/DealModal";
+import FilterBuilder from "@/components/organisms/FilterBuilder";
+import FilterBar from "@/components/organisms/FilterBar";
 import { cn } from "@/utils/cn";
 
 const Deals = () => {
   const [dealModal, setDealModal] = useState({ open: false, data: null, type: "add" });
+  const [filters, setFilters] = useState([]);
+  const [savedView, setSavedView] = useState(null);
 
   const handleDealAction = (action) => {
     setDealModal({
@@ -21,9 +25,29 @@ const Deals = () => {
   const handleDataSave = () => {
     // Refresh data would happen here
     handleModalClose();
+};
+
+  const handleFiltersChange = (newFilters) => {
+    setFilters(newFilters);
   };
 
-  return (
+  const handleSavedViewSelect = (view) => {
+    setSavedView(view);
+  };
+
+  const handleFilterRemove = (filterId) => {
+    setFilters(filters.filter(f => f.id !== filterId));
+  };
+
+  const handleClearAllFilters = () => {
+    setFilters([]);
+  };
+
+  const handleSavedViewClear = () => {
+    setSavedView(null);
+  };
+
+return (
     <div className="space-y-6">
       <div className="bg-gradient-to-r from-primary-600 to-secondary-600 rounded-2xl p-8 text-white">
         <h1 className="text-3xl font-bold mb-2">Sales Pipeline</h1>
@@ -32,7 +56,24 @@ const Deals = () => {
         </p>
       </div>
 
-      <DealPipeline onDealSelect={handleDealAction} />
+      <FilterBuilder
+        type="deals"
+        onFiltersChange={handleFiltersChange}
+        onSavedViewSelect={handleSavedViewSelect}
+      />
+
+      <FilterBar
+        filters={filters}
+        savedView={savedView}
+        onFilterRemove={handleFilterRemove}
+        onClearAll={handleClearAllFilters}
+        onSavedViewClear={handleSavedViewClear}
+      />
+
+      <DealPipeline 
+        filters={filters}
+        onDealSelect={handleDealAction} 
+      />
 
       {/* Deal Modal */}
       {dealModal.open && (

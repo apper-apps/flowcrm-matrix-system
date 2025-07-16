@@ -9,9 +9,10 @@ import Error from "@/components/ui/Error";
 import Empty from "@/components/ui/Empty";
 import { dealService } from "@/services/api/dealService";
 import { contactService } from "@/services/api/contactService";
+import { filterManager } from "@/services/api/filterManager";
 import { cn } from "@/utils/cn";
 
-const DealPipeline = ({ onDealSelect, className }) => {
+const DealPipeline = ({ filters = [], onDealSelect, className }) => {
   const [deals, setDeals] = useState([]);
   const [contacts, setContacts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -52,8 +53,15 @@ const DealPipeline = ({ onDealSelect, className }) => {
     return contact ? contact.name : "Unknown Contact";
   };
 
-  const getDealsByStage = (stageId) => {
-    return deals.filter(deal => deal.stage === stageId);
+const getDealsByStage = (stageId) => {
+    let stageDeals = deals.filter(deal => deal.stage === stageId);
+    
+    // Apply advanced filters
+    if (filters.length > 0) {
+      stageDeals = filterManager.applyFilters(stageDeals, filters);
+    }
+    
+    return stageDeals;
   };
 
   const formatCurrency = (amount) => {

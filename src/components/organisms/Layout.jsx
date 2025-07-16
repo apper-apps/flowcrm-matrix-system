@@ -10,7 +10,9 @@ const Layout = ({
   onSearch, 
   onAddContact, 
   onAddDeal, 
-  onAddTask 
+  onAddTask,
+  filterState,
+  onFilterChange
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -27,13 +29,15 @@ const Layout = ({
       
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        <Header
+<Header
           title={title}
           onMenuClick={() => setMobileMenuOpen(true)}
           onSearch={onSearch}
           onAddContact={onAddContact}
           onAddDeal={onAddDeal}
           onAddTask={onAddTask}
+          filterState={filterState}
+          onFilterChange={onFilterChange}
         />
         
         <main className="flex-1 overflow-y-auto">

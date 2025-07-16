@@ -1,11 +1,15 @@
-import { useState } from "react";
-import ContactList from "@/components/organisms/ContactList";
-import ContactModal from "@/components/organisms/ContactModal";
+import React, { useState } from "react";
+import FilterBuilder from "@/components/organisms/FilterBuilder";
+import FilterBar from "@/components/organisms/FilterBar";
 import { cn } from "@/utils/cn";
+import ContactModal from "@/components/organisms/ContactModal";
+import ContactList from "@/components/organisms/ContactList";
 
 const Contacts = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [contactModal, setContactModal] = useState({ open: false, data: null, type: "add" });
+  const [filters, setFilters] = useState([]);
+  const [savedView, setSavedView] = useState(null);
 
   const handleContactAction = (action) => {
     setContactModal({
@@ -24,8 +28,28 @@ const Contacts = () => {
     handleModalClose();
   };
 
-  const handleSearch = (term) => {
+const handleSearch = (term) => {
     setSearchTerm(term);
+  };
+
+  const handleFiltersChange = (newFilters) => {
+    setFilters(newFilters);
+  };
+
+  const handleSavedViewSelect = (view) => {
+    setSavedView(view);
+  };
+
+  const handleFilterRemove = (filterId) => {
+    setFilters(filters.filter(f => f.id !== filterId));
+  };
+
+  const handleClearAllFilters = () => {
+    setFilters([]);
+  };
+
+  const handleSavedViewClear = () => {
+    setSavedView(null);
   };
 
   return (
@@ -37,8 +61,23 @@ const Contacts = () => {
         </p>
       </div>
 
-      <ContactList 
+      <FilterBuilder
+        type="contacts"
+        onFiltersChange={handleFiltersChange}
+        onSavedViewSelect={handleSavedViewSelect}
+      />
+
+      <FilterBar
+        filters={filters}
+        savedView={savedView}
+        onFilterRemove={handleFilterRemove}
+        onClearAll={handleClearAllFilters}
+        onSavedViewClear={handleSavedViewClear}
+      />
+
+<ContactList 
         searchTerm={searchTerm}
+        filters={filters}
         onContactSelect={handleContactAction}
       />
 

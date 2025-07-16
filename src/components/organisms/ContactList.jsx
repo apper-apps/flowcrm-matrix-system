@@ -8,9 +8,10 @@ import Loading from "@/components/ui/Loading";
 import Error from "@/components/ui/Error";
 import Empty from "@/components/ui/Empty";
 import { contactService } from "@/services/api/contactService";
+import { filterManager } from "@/services/api/filterManager";
 import { cn } from "@/utils/cn";
 
-const ContactList = ({ searchTerm, onContactSelect, className }) => {
+const ContactList = ({ searchTerm, filters = [], onContactSelect, className }) => {
   const [contacts, setContacts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -32,11 +33,25 @@ const ContactList = ({ searchTerm, onContactSelect, className }) => {
     loadContacts();
   }, []);
 
-  const filteredContacts = contacts.filter(contact =>
-    contact.name.toLowerCase().includes(searchTerm?.toLowerCase() || "") ||
-    contact.email.toLowerCase().includes(searchTerm?.toLowerCase() || "") ||
-    contact.company.toLowerCase().includes(searchTerm?.toLowerCase() || "")
-  );
+const filteredContacts = (() => {
+    let filtered = contacts;
+    
+    // Apply search term filter
+    if (searchTerm) {
+      filtered = filtered.filter(contact =>
+        contact.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        contact.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        contact.company.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+    
+    // Apply advanced filters
+    if (filters.length > 0) {
+      filtered = filterManager.applyFilters(filtered, filters);
+    }
+    
+    return filtered;
+  })();
 
   if (loading) {
     return <Loading type="table" className={className} />;
