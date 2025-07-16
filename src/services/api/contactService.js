@@ -39,11 +39,10 @@ class ContactService {
     return { ...this.contacts[index] };
   }
 
-  async delete(id) {
+async delete(id) {
     await new Promise(resolve => setTimeout(resolve, 300));
     const index = this.contacts.findIndex(c => c.Id === id);
     if (index === -1) {
-if (index === -1) {
       throw new Error("Contact not found");
     }
     this.contacts.splice(index, 1);
